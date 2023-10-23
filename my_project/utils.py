@@ -3,7 +3,7 @@ sys.path.append('../')
 from pycore.tikzeng import *
 
 class ArchLayer:
-    def __init__(self, size, features, caption = '""', type='conv'):
+    def __init__(self, size = 256, features = 32, caption = '""', type='conv'):
         self.size = size
         self.features = features
         self.caption = caption
@@ -27,10 +27,16 @@ def to_arch(layers: list[ArchLayer], padding = 1, width_exp=0.7, length_exp=0.7)
     ]
     
     for i, l in enumerate(layers):
-        l.update(name=f'conv{i+1}', width_exp=width_exp, length_exp=length_exp)
-        arch.append(
-            to_Conv(l.name, l.size, l.features, offset=f"({0 if i == 0 else padding},0,0)", to=f"({layers[i-1].name}-east)" if i > 0 else '(0,0,0)', height=l.height, depth=l.depth, width=l.width, caption=l.caption )
-        )
+        if l.type == 'conv':
+            l.update(name=f'conv{i+1}', width_exp=width_exp, length_exp=length_exp)
+            arch.append(
+                to_Conv(l.name, l.size, l.features, offset=f"({0 if i == 0 else padding},0,0)", to=f"({layers[i-1].name}-east)" if i > 0 else '(0,0,0)', height=l.height, depth=l.depth, width=l.width, caption=l.caption )
+            )
+        elif l.type == 'sum':
+            l.update(name=f'sum{i+1}', width_exp=width_exp, length_exp=length_exp)
+            arch.append(
+                to_Sum(l.name, offset=f"({padding},0,0)", to=f"({layers[i-1].name}-east)" if i > 0 else '(0,0,0)'),
+            )
         #print(l.name, l.size, l.features, f"({0 if i == 0 else 1},0,0)", f"({layers[i-1].name if i > 0 else '(0,0,0)'}-east)", l.height, l.depth, l.width)
         
     for i in range(len(layers) - 1):
