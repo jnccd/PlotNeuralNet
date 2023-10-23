@@ -15,6 +15,7 @@ class ArchLayer:
         self.height = self.size**width_exp
         self.depth = self.size**width_exp
         self.width = self.features**length_exp
+        self.radius = 2.5
         self.index = index
         self.name = name
         
@@ -37,7 +38,7 @@ def to_arch(layers: list[ArchLayer], padding = 1, long_conn_padding = 6, width_e
         elif l.type == 'sum':
             l.update(name=f'sum{i+1}', width_exp=width_exp, length_exp=length_exp, index=i)
             arch.append(
-                to_Sum(l.name, offset=f"({padding},0,0)", to=f"({layers[i-1].name}-east)" if i > 0 else '(0,0,0)'),
+                to_Sum(l.name, offset=f"({padding},0,0)", to=f"({layers[i-1].name}-east)" if i > 0 else '(0,0,0)', radius=l.radius),
             )
         
     for i in range(len(layers) - 1):
@@ -51,21 +52,24 @@ def to_arch(layers: list[ArchLayer], padding = 1, long_conn_padding = 6, width_e
             break
         
         long_conn_name = l.name + f'lc{i}'
+        #start_dummy_name =f"{long_conn_name}_dummy_s"
         dummy1_name =f"{long_conn_name}_dummy1"
         dummy2_name =f"{long_conn_name}_dummy2"
+        end_dummy_name =f"{long_conn_name}_dummy_e"
         arch.extend([
             # Long conn tensor vis
-            to_Conv(long_conn_name, l.size, l.features, offset=f"({padding},-{long_conn_padding*(i+1)},0)", to=f"({layers[l.long_conn_from].name}-east)", height=l.height, depth=l.depth, width=l.width, caption=l.caption ),
+            to_Conv(long_conn_name, l.size, l.features, offset=f"({padding*2},-{long_conn_padding*(i+1)},0)", to=f"({layers[l.long_conn_from].name}-east)", height=l.height, depth=l.depth, width=l.width, caption=l.caption ),
             
             # Dummy nodes
             to_Pool(dummy1_name, offset=f"(0,-{long_conn_padding*(i+1)},0)", to=f"({layers[l.long_conn_from].name}-east)", height=0, depth=0, width=0, opacity=0 ),
-            to_Pool(dummy2_name, offset=f"(0,-{long_conn_padding*(i+1)},0)", to=f"({l.name}-west)", height=0, depth=0, width=0, opacity=0 ),
+            to_Pool(dummy2_name, offset=f"({l.radius / 5},-{long_conn_padding*(i+1)},0)", to=f"({l.name}-west)", height=0, depth=0, width=0, opacity=0 ),
+            to_Pool(end_dummy_name, offset=f"({padding - l.radius / 5},{-l.radius / 5},0)", to=f"({l.name}-west)", height=0, depth=0, width=0, opacity=0 ),
             
             # Conns
             to_connection(layers[l.long_conn_from].name, dummy1_name),
             to_connection(dummy1_name, long_conn_name),
             to_connection(long_conn_name, dummy2_name),
-            to_connection(dummy2_name, l.name),
+            to_connection(dummy2_name, end_dummy_name),
         ])
         
     arch.append(to_end())
