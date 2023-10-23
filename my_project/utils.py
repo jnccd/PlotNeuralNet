@@ -29,6 +29,7 @@ def to_arch(layers: list[ArchLayer], padding = 1, long_conn_padding = 6, width_e
         to_begin(),
     ]
     
+    # Main Layers
     for i, l in enumerate(layers):
         if l.type == 'conv':
             l.update(name=f'conv{i+1}', width_exp=width_exp, length_exp=length_exp)
@@ -41,11 +42,13 @@ def to_arch(layers: list[ArchLayer], padding = 1, long_conn_padding = 6, width_e
                 to_Sum(l.name, offset=f"({padding},0,0)", to=f"({layers[i-1].name}-east)" if i > 0 else '(0,0,0)', radius=l.radius),
             )
         
+    # Connections
     for i in range(len(layers) - 1):
         arch.append(
             to_connection(layers[i].name, layers[i + 1].name),
         )
         
+    # Long Connections / Concats
     long_conn_length_sorted_layers = sorted(layers, key = lambda l: l.index - l.long_conn_from if l.long_conn_from >= 0 else 999999)
     for i, l in enumerate(long_conn_length_sorted_layers):
         if l.long_conn_from < 0:
