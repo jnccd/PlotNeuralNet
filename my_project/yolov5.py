@@ -9,7 +9,7 @@ archLayers = [
     ArchLayer(80, 256, caption='C3'),
     ArchLayer(40, 512, caption='C3'),
     ArchLayer(20, 1024, caption='SPPF'),
-    ArchLayer(type='sum'),#ArchLayer(40, 1024, caption='CONCAT'),
+    ArchLayer(type='sum', long_conn_from=3),#ArchLayer(40, 1024, caption='CONCAT'),
     ArchLayer(40, 512, caption='C3'),
     ArchLayer(type='sum'),#ArchLayer(80, 512, caption='CONCAT'),
     ArchLayer(80, 256, caption='C3'),
