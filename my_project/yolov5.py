@@ -4,12 +4,22 @@ from pycore.tikzeng import *
 from utils import *
 
 archLayers = [
-    ArchLayer(640, 3),
-    ArchLayer(320, 64),
-    ArchLayer(160, 128),
+    ArchLayer(640, 3, caption='Input'),
+    ArchLayer(320, 64, caption='P1'),
+    ArchLayer(80, 256, caption='C3'),
+    ArchLayer(40, 512, caption='C3'),
+    ArchLayer(20, 1024, caption='SPPF'),
+    ArchLayer(40, 1024, caption='CONCAT'),
+    ArchLayer(40, 512, caption='C3'),
+    ArchLayer(80, 512, caption='CONCAT'),
+    ArchLayer(80, 256, caption='C3'),
+    ArchLayer(40, 512, caption='CONCAT'),
+    ArchLayer(20, 512, caption='C3'),
+    ArchLayer(20, 1024, caption='CONCAT'),
+    ArchLayer(20, 1024, caption='C3'),
 ]
 
-arch = to_arch(archLayers, 3)
+arch = to_arch(archLayers, padding=1, length_exp=0.5)
 
 def main():
     namefile = str(sys.argv[0]).split('.')[0]
