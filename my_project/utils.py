@@ -3,7 +3,7 @@ sys.path.append('../')
 from pycore.tikzeng import *
 
 class ArchLayer:
-    def __init__(self, size = 256, features = 32, caption = '""', type='conv', long_conn_from=-1):
+    def __init__(self, size = 256, features = 32, caption = '', type='conv', long_conn_from=-1):
         self.size = size
         self.features = features
         self.caption = caption
