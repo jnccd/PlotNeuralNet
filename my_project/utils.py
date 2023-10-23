@@ -52,7 +52,7 @@ def to_arch(layers: list[ArchLayer], padding = 1, long_conn_padding = 6, width_e
         
         long_conn_name = l.name + f'lc{i}'
         arch.extend([
-            to_Conv(long_conn_name, l.size, l.features, offset=f"({padding},-{long_conn_padding},0)", to=f"({layers[l.long_conn_from].name}-east)", height=l.height, depth=l.depth, width=l.width, caption=l.caption ),
+            to_Conv(long_conn_name, l.size, l.features, offset=f"({padding},-{long_conn_padding*(i+1)},0)", to=f"({layers[l.long_conn_from].name}-east)", height=l.height, depth=l.depth, width=l.width, caption=l.caption ),
             to_connection(layers[l.long_conn_from].name, long_conn_name),
             to_connection(long_conn_name, l.name),
         ])
