@@ -51,10 +51,21 @@ def to_arch(layers: list[ArchLayer], padding = 1, long_conn_padding = 6, width_e
             break
         
         long_conn_name = l.name + f'lc{i}'
+        dummy1_name =f"{long_conn_name}_dummy1"
+        dummy2_name =f"{long_conn_name}_dummy2"
         arch.extend([
+            # Long conn tensor vis
             to_Conv(long_conn_name, l.size, l.features, offset=f"({padding},-{long_conn_padding*(i+1)},0)", to=f"({layers[l.long_conn_from].name}-east)", height=l.height, depth=l.depth, width=l.width, caption=l.caption ),
-            to_connection(layers[l.long_conn_from].name, long_conn_name),
-            to_connection(long_conn_name, l.name),
+            
+            # Dummy nodes
+            to_Pool(dummy1_name, offset=f"(0,-{long_conn_padding*(i+1)},0)", to=f"({layers[l.long_conn_from].name}-east)", height=0, depth=0, width=0, opacity=0 ),
+            to_Pool(dummy2_name, offset=f"(0,-{long_conn_padding*(i+1)},0)", to=f"({l.name}-west)", height=0, depth=0, width=0, opacity=0 ),
+            
+            # Conns
+            to_connection(layers[l.long_conn_from].name, dummy1_name),
+            to_connection(dummy1_name, long_conn_name),
+            to_connection(long_conn_name, dummy2_name),
+            to_connection(dummy2_name, l.name),
         ])
         
     arch.append(to_end())
