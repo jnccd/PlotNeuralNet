@@ -11,8 +11,8 @@ archLayers = [
     ArchLayer(26, 512),
     ArchLayer(13, 1024),
     ArchLayer(13, 1024),
-    ArchLayer(13, 1024),
     ArchLayer(13, 1024, type='sum', long_conn_from=4),
+    ArchLayer(13, 1024),
     ArchLayer(13, 125),
 ]
 
