@@ -41,6 +41,11 @@ def to_arch(layers: list[ArchLayer], padding = 1, long_conn_padding = 6, width_e
             arch.append(
                 to_Sum(l.name, offset=f"({padding},0,0)", to=f"({layers[i-1].name}-east)" if i > 0 else '(0,0,0)', radius=l.radius),
             )
+        elif l.type == 'softmax':
+            l.update(name=f'softmax{i+1}', width_exp=width_exp, length_exp=length_exp, index=i)
+            arch.append(
+                to_SoftMax(l.name, l.features, offset=f"({padding},0,0)", to=f"({layers[i-1].name}-east)" if i > 0 else '(0,0,0)', height=l.height, depth=l.width, width=l.depth, caption=l.caption),
+            )
         
     # Connections
     for i in range(len(layers) - 1):
